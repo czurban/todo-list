@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
+import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import { Alarm } from "./components/Alarm";
 import { Note } from "./components/Note";
 import { Task } from "./components/Task";
 import "./index.css";
-import type { AlarmItem, Mode, NoteItem, TaskItem } from "./types";
+import type { AlarmItem, NoteItem, TaskItem } from "./types";
 
 const alarmSound = new Audio("/ochen_gromkij_budilnik.mp3");
 
 function App() {
   const [alarmTime, setAlarmTime] = useState("");
-  const [mode, setMode] = useState<Mode>("notes");
   const [title, setTitle] = useState("");
   const [showDoneOnly, setShowDoneOnly] = useState(false);
   const [searchVal, setSearchVal] = useState("");
@@ -30,7 +30,6 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Сохранение в localStorage
   useEffect(
     () => localStorage.setItem("my_notes", JSON.stringify(list)),
     [list],
@@ -44,7 +43,6 @@ function App() {
     [taskList],
   );
 
-  // Оптимизированный таймер + Push-уведомления
   useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
@@ -58,7 +56,6 @@ function App() {
 
       setAlarmsList((prevList) => {
         let isChanged = false;
-
         const newList = prevList.map((alarm) => {
           if (alarm.time === currentTimeString && alarm.isActive) {
             isChanged = true;
@@ -77,7 +74,6 @@ function App() {
           }
           return alarm;
         });
-
         return isChanged ? newList : prevList;
       });
     }, 1000);
@@ -85,7 +81,6 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // --- Функции для Заметок ---
   const addNote = () =>
     setList([...list, { id: Date.now(), noteText: "", name: "" }]);
   const deleteNote = (idToRemove: number) =>
@@ -100,7 +95,6 @@ function App() {
     );
   };
 
-  // --- Функции для Будильников ---
   const addAlarm = () => {
     if (!alarmTime) return;
     const newAlarm: AlarmItem = {
@@ -116,7 +110,6 @@ function App() {
   const deleteAlarm = (idToRemove: number) =>
     setAlarmsList(alarmsList.filter((a) => a.idAlarm !== idToRemove));
 
-  // --- Функции для Задач ---
   const addTask = () => {
     setTaskList([
       ...taskList,
@@ -134,7 +127,6 @@ function App() {
     );
   };
 
-  // Фильтрация
   const filteredList = list.filter((item) =>
     item.name.toLowerCase().includes(searchVal.toLowerCase()),
   );
@@ -145,120 +137,116 @@ function App() {
   return (
     <div className="main">
       <div className="nav">
-        <button
-          className={mode === "notes" ? "active" : ""}
-          onClick={() => setMode("notes")}
-        >
-          Notes
-        </button>
-        <button
-          className={mode === "alarm" ? "active" : ""}
-          onClick={() => setMode("alarm")}
-        >
-          Alarms
-        </button>
-        <button
-          className={mode === "tasks" ? "active" : ""}
-          onClick={() => setMode("tasks")}
-        >
-          Tasks
-        </button>
+        <NavLink to="/notes">Notes</NavLink>
+        <NavLink to="/alarms">Alarms</NavLink>
+        <NavLink to="/tasks">Tasks</NavLink>
       </div>
 
-      {mode === "notes" && (
-        <>
-          <h2 className="title">My Notes</h2>
-          <div className="searchNote">
-            <input
-              className="searchInput"
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-              placeholder="Search Note..."
-            />
-          </div>
-          <div className="list">
-            {filteredList.map((item) => (
-              <Note
-                key={item.id}
-                {...item}
-                onDelete={deleteNote}
-                onUpdate={updateNote}
-              />
-            ))}
-            <div className="buttonPlace">
-              <button type="button" onClick={addNote} className="addButton">
-                +
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      <Routes>
+        <Route path="/" element={<Navigate to="/notes" replace />} />
 
-      {mode === "alarm" && (
-        <>
-          <h2 className="title">My Alarms</h2>
-          <div className="alarmControls">
-            <input
-              type="text"
-              placeholder="Alarm title..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <input
-              type="time"
-              value={alarmTime}
-              onChange={(e) => setAlarmTime(e.target.value)}
-            />
-            <button onClick={addAlarm}>Add Alarm</button>
-          </div>
-          <div className="alarmList">
-            {alarmsList.map((alarm) => (
-              <Alarm
-                key={alarm.idAlarm}
-                {...alarm}
-                onDeleteAlarm={deleteAlarm}
-              />
-            ))}
-          </div>
-        </>
-      )}
+        <Route
+          path="/notes"
+          element={
+            <>
+              <h2 className="title">My Notes</h2>
+              <div className="searchNote">
+                <input
+                  className="searchInput"
+                  value={searchVal}
+                  onChange={(e) => setSearchVal(e.target.value)}
+                  placeholder="Search Note..."
+                />
+              </div>
+              <div className="list">
+                {filteredList.map((item) => (
+                  <Note
+                    key={item.id}
+                    {...item}
+                    onDelete={deleteNote}
+                    onUpdate={updateNote}
+                  />
+                ))}
+                <div className="buttonPlace">
+                  <button type="button" onClick={addNote} className="addButton">
+                    +
+                  </button>
+                </div>
+              </div>
+            </>
+          }
+        />
 
-      {mode === "tasks" && (
-        <>
-          <h2 className="title">My Tasks</h2>
-          <div className="taskControls">
-            <input
-              type="text"
-              placeholder="Type your task..."
-              value={task}
-              onChange={(e) => setTask(e.target.value)}
-            />
-            <button onClick={addTask}>Add Task</button>
-          </div>
+        <Route
+          path="/alarms"
+          element={
+            <>
+              <h2 className="title">My Alarms</h2>
+              <div className="alarmControls">
+                <input
+                  type="text"
+                  placeholder="Alarm title..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <input
+                  type="time"
+                  value={alarmTime}
+                  onChange={(e) => setAlarmTime(e.target.value)}
+                />
+                <button onClick={addAlarm}>Add Alarm</button>
+              </div>
+              <div className="alarmList">
+                {alarmsList.map((alarm) => (
+                  <Alarm
+                    key={alarm.idAlarm}
+                    {...alarm}
+                    onDeleteAlarm={deleteAlarm}
+                  />
+                ))}
+              </div>
+            </>
+          }
+        />
 
-          <div className="taskFilter">
-            <label>
-              <input
-                type="checkbox"
-                checked={showDoneOnly}
-                onChange={() => setShowDoneOnly(!showDoneOnly)}
-              />
-              <span>Show completed only</span>
-            </label>
-          </div>
-
-          <div className="taskList">
-            {filteredTaskList.map((taskItem) => (
-              <Task
-                key={taskItem.idTask}
-                {...taskItem}
-                onDeleteTask={deleteTask}
-                onToggleDone={toggleTaskDone}
-              />
-            ))}
-          </div>
-        </>
-      )}
+        <Route
+          path="/tasks"
+          element={
+            <>
+              <h2 className="title">My Tasks</h2>
+              <div className="taskControls">
+                <input
+                  type="text"
+                  placeholder="Type your task..."
+                  value={task}
+                  onChange={(e) => setTask(e.target.value)}
+                />
+                <button onClick={addTask}>Add Task</button>
+              </div>
+              <div className="taskFilter">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showDoneOnly}
+                    onChange={() => setShowDoneOnly(!showDoneOnly)}
+                  />
+                  <span>Show completed only</span>
+                </label>
+              </div>
+              <div className="taskList">
+                {filteredTaskList.map((taskItem) => (
+                  <Task
+                    key={taskItem.idTask}
+                    {...taskItem}
+                    onDeleteTask={deleteTask}
+                    onToggleDone={toggleTaskDone}
+                  />
+                ))}
+              </div>
+            </>
+          }
+        />
+      </Routes>
     </div>
   );
 }
