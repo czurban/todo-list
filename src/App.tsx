@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import { Alarm } from "./components/Alarm";
+import { Alarmed } from "./components/Alarmed";
 import { Note } from "./components/Note";
 import { Task } from "./components/Task";
 import "./index.css";
 import type { AlarmItem, NoteItem, TaskItem } from "./types";
 
 const alarmSound = new Audio("/ochen_gromkij_budilnik.mp3");
+alarmSound.loop = true;
 
 function App() {
   const [alarmTime, setAlarmTime] = useState("");
@@ -14,7 +16,7 @@ function App() {
   const [showDoneOnly, setShowDoneOnly] = useState(false);
   const [searchVal, setSearchVal] = useState("");
   const [task, setTask] = useState("");
-
+  const [ringingAlarm, setRingingAlarm] = useState<AlarmItem | null>(null);
   const [list, setList] = useState<NoteItem[]>(() => {
     const saved = localStorage.getItem("my_notes");
     return saved ? JSON.parse(saved) : [];
@@ -61,12 +63,14 @@ function App() {
             isChanged = true;
             alarmSound.play().catch((e) => console.warn("Audio blocked:", e));
 
+            setRingingAlarm(alarm);
+
             if (
               "Notification" in window &&
               Notification.permission === "granted"
             ) {
-              new Notification("⏰ Будильник сработал!", {
-                body: alarm.title || "Пора!",
+              new Notification("Alarm ! Alarm!", {
+                body: alarm.title || "Its time to go!",
                 icon: "https://cdn-icons-png.flaticon.com/512/833/833604.png",
               });
             }
@@ -109,6 +113,12 @@ function App() {
   };
   const deleteAlarm = (idToRemove: number) =>
     setAlarmsList(alarmsList.filter((a) => a.idAlarm !== idToRemove));
+
+  const stopAlarm = () => {
+    alarmSound.pause();
+    alarmSound.currentTime = 0;
+    setRingingAlarm(null);
+  };
 
   const addTask = () => {
     setTaskList([
@@ -247,6 +257,8 @@ function App() {
           }
         />
       </Routes>
+
+      {ringingAlarm && <Alarmed alarm={ringingAlarm} stopAlarm={stopAlarm} />}
     </div>
   );
 }
