@@ -4,6 +4,7 @@ import type { TarotCard } from "../types";
 
 async function getAiAnswer(promptText: string) {
   const API_KEY = import.meta.env.VITE_OPENROUTER_KEY;
+  console.log("КЛЮЧ:", import.meta.env.VITE_OPENROUTER_KEY);
 
   try {
     const response = await fetch(
