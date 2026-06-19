@@ -3,8 +3,7 @@ import { cards } from "../cards";
 import type { TarotCard } from "../types";
 
 async function getAiAnswer(promptText: string) {
-  const API_KEY =
-    "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";
+  const API_KEY = import.meta.env.VITE_OPENROUTER_KEY;
 
   try {
     const response = await fetch(
