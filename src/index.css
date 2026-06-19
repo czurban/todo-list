@@ -7,7 +7,12 @@ body {
     -apple-system,
     blinkmacsystemfont,
     sans-serif;
-  background: #0f172a;
+  /*background: #0f172a;*/
+  background-image: url("/assets/mishya.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: #f8fafc;
   -webkit-font-smoothing: antialiased;
 }
