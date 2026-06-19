@@ -4,7 +4,6 @@ import type { TarotCard } from "../types";
 
 async function getAiAnswer(promptText: string) {
   const API_KEY = import.meta.env.VITE_OPENROUTER_KEY;
-  console.log("КЛЮЧ:", import.meta.env.VITE_OPENROUTER_KEY);
 
   try {
     const response = await fetch(
@@ -59,12 +58,14 @@ export function TarotReader() {
   const [card, setCard] = useState<TarotCard | null>(null);
   const [aiResponse, setAiResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [drawCount, setDrawCount] = useState(0);
 
   const handleDrawCard = async () => {
     const randomIndex = Math.floor(Math.random() * cards.length);
     const drawnCard = cards[randomIndex] as TarotCard;
 
     setCard(drawnCard);
+    setDrawCount((prev) => prev + 1);
     setIsLoading(true);
     setAiResponse("");
 
@@ -95,11 +96,11 @@ export function TarotReader() {
         onClick={handleDrawCard}
         disabled={isLoading || !question}
       >
-        {isLoading ? "🔮 Consulting spirits..." : "✨ Draw a card"}
+        {isLoading ? " Consulting spirits..." : " Draw a card"}
       </button>
 
       {card && (
-        <div className="card-result">
+        <div key={`${card.id}-${drawCount}`} className="card-result">
           <h3>You drew: {card.name}</h3>
           <img
             src={card.image}
