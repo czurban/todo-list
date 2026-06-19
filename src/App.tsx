@@ -4,6 +4,7 @@ import { Alarm } from "./components/Alarm";
 import { Alarmed } from "./components/Alarmed";
 import { Note } from "./components/Note";
 import { Task } from "./components/Task";
+import { TarotReader } from "./components/tarot";
 import "./index.css";
 import type { AlarmItem, NoteItem, TaskItem } from "./types";
 
@@ -150,6 +151,7 @@ function App() {
         <NavLink to="/notes">Notes</NavLink>
         <NavLink to="/alarms">Alarms</NavLink>
         <NavLink to="/tasks">Tasks</NavLink>
+        <NavLink to="/tarot">Tarot</NavLink>
       </div>
 
       <Routes>
@@ -256,9 +258,18 @@ function App() {
             </>
           }
         />
-      </Routes>
 
-      {ringingAlarm && <Alarmed alarm={ringingAlarm} stopAlarm={stopAlarm} />}
+        {ringingAlarm && <Alarmed alarm={ringingAlarm} stopAlarm={stopAlarm} />}
+        <Route
+          path="/tarot"
+          element={
+            <>
+              <h2 className="title">Magic Tarot</h2>
+              <TarotReader />
+            </>
+          }
+        />
+      </Routes>
     </div>
   );
 }
