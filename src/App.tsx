@@ -62,10 +62,11 @@ function App() {
         const newList = prevList.map((alarm) => {
           if (alarm.time === currentTimeString && alarm.isActive) {
             isChanged = true;
-            alarmSound.play().catch((e) => console.warn("Audio blocked:", e));
 
             setRingingAlarm(alarm);
 
+            alarmSound.currentTime = 0;
+            alarmSound.play();
             if (
               "Notification" in window &&
               Notification.permission === "granted"
@@ -258,8 +259,6 @@ function App() {
             </>
           }
         />
-
-        {ringingAlarm && <Alarmed alarm={ringingAlarm} stopAlarm={stopAlarm} />}
         <Route
           path="/tarot"
           element={
@@ -270,6 +269,7 @@ function App() {
           }
         />
       </Routes>
+      {ringingAlarm && <Alarmed alarm={ringingAlarm} stopAlarm={stopAlarm} />}
     </div>
   );
 }
