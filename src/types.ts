@@ -1,4 +1,12 @@
-export type Mode = "alarm" | "notes" | "tasks";
+export type Mode = "alarm" | "notes" | "tasks" | "tarot";
+
+export interface TarotCard {
+  id: string;
+  name: string;
+  image: string;
+  arcana: string;
+  suit: string | null;
+}
 
 export interface TaskItem {
   idTask: number;
